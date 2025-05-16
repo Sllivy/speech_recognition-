@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎙️ Voice to Text</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 55%, #fad0c4 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      animation: gradientShift 10s ease infinite;
+      background-size: 400% 400%;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: 64px;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7),
+                   0 0 20px rgba(255, 200, 200, 0.8);
+      margin-bottom: 40px;
+      animation: fadeIn 2s ease-out;
+    }
+
+    #text-display {
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      width: 80%;
+      padding: 30px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 255, 255, 0.3); }
+      50% { transform: scale(1.02); box-shadow: 0 0 50px rgba(255, 255, 255, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 255, 255, 0.3); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    ::selection {
+      background: #fff176;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎤 Live Speech Recognition</h1>
+  <div id="text-display">Say something...</div>
+
+  <script>
+    const display = document.getElementById("text-display");
+
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      display.innerText = "🚫 Speech recognition is not supported in this browser.";
+    } else {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event) => {
+        const lastResult = event.results[event.results.length - 1];
+        const text = lastResult[0].transcript.trim();
+        display.innerText = `🗣️ ${text}`;
+        if (text.toLowerCase() === "quit") {
+          recognition.stop();
+          display.innerText = "🛑 Stopped listening.";
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+      };
+
+      recognition.onend = () => {
+        recognition.start(); // Restart for continuous listening
+      };
+
+      recognition.start();
+    }
+  </script>
+</body>
+</html>
